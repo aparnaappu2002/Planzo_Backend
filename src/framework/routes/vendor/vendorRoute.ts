@@ -79,6 +79,9 @@ export class VendorRoute{
         this.vendorRoute.patch('/changeStatusService', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
             injectedServiceVendorControllerUseCase.handleChangeStatusUseCase(req, res)
         })
+        this.vendorRoute.get('/searchservice', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedServiceVendorControllerUseCase.handleSearchService(req, res)
+        })
         this.vendorRoute.get('/showBookings/:vendorId/:pageNo', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
             injectedBookingVendorController.handleShowBookingsInVendor(req, res)
         })
