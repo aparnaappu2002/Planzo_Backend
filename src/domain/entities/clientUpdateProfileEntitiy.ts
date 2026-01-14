@@ -1,4 +1,4 @@
-export interface ClientUpdateProfileDTO {
+export interface ClientUpdateProfileEntity {
     _id: string;
     name: string;
     phone: number;
