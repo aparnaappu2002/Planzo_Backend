@@ -4,18 +4,12 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-<<<<<<< HEAD
-    "dev": "ts-node src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
-
-=======
     "lint": "eslint .",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
-    "start": "node src/server.js"
->>>>>>> 200ce3b6afb515e833df82d00e0eb738f6c155a2
+    "start": "node dist/server.js"
   },
+
   "keywords": [],
   "author": "",
   "license": "ISC",
