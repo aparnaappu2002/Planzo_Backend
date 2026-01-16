@@ -2,7 +2,7 @@ import { EventEntity } from "../../../domain/entities/event/eventEntity";
 import { EventUpdateEntity } from "../../../domain/entities/event/eventUpdateEntity";
 import { IeventRepository } from "../../../domain/interfaces/repositoryInterfaces/event/IeventRepository";
 import { eventModal } from "../../../framework/database/models/eventModel";
-import { ObjectId } from "mongoose";
+import { ObjectId,Types } from "mongoose";
 import { SearchLocationOptions } from "../../../domain/dto/searchLocationOptionsDTO";
 import { SearchEventsResult } from "../../../domain/dto/searchResultDTO";
 import { EventDashboardDTO } from "../../../domain/dto/eventDashboardDTO";
@@ -211,4 +211,63 @@ async findEventByIdForTicketVerification(eventId: string): Promise<EventEntity |
             totalTicketsSold
         }
     }
+    async findTotalEvents(vendorId: string, datePeriod: Date | null): Promise<number> {
+        const query: Record<string, any> = { hostedBy: vendorId }
+        if (datePeriod) {
+            query.createdAt = { $gte: datePeriod }
+        }
+        return eventModal.countDocuments(query)
+    }
+    async findRecentEvents(vendorId: string): Promise<EventEntity[] | []> {
+        return await eventModal.find({ hostedBy: vendorId })
+    }
+    async findTotalticketsSold(vendorId: string, datePeriod: Date | null): Promise<number> {
+        const query: Record<string, any> = { hostedBy: new Types.ObjectId(vendorId) }
+        if (datePeriod) {
+            query.createdAt = { $gte: datePeriod }
+        }
+        const result = await eventModal.aggregate([
+            { $match: query },
+            {
+                $group: {
+                    _id: null,
+                    totalTickets: { $sum: "$ticketPurchased" }
+                }
+            }
+        ])
+        return result[0]?.totalTickets || 0
+
+    }
+    async findAllEventsOfAVendor(vendorId: string): Promise<EventEntity[] | []> {
+        return await eventModal.find({ hostedBy: vendorId })
+    }
+    async searchEventsByName(
+        vendorId: string,
+        searchQuery: string,
+        pageNo: number
+    ): Promise<{
+        events: EventEntity[] | [];
+        totalPages: number;
+        totalResults: number;
+    }> {
+        const limit = 10;
+        const skip = (pageNo - 1) * limit;
+        
+        const query: any = {
+            hostedBy: vendorId,
+            title: { $regex: searchQuery, $options: 'i' } 
+        };
+    
+        const totalResults = await eventModal.countDocuments(query);
+        const totalPages = Math.ceil(totalResults / limit);
+    
+        const events = await eventModal.find(query)
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 })
+            .lean();
+    
+        return { events, totalPages, totalResults };
+    }
+    
 }

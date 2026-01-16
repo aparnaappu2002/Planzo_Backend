@@ -5,9 +5,8 @@ import { clientAuthenticationController,injectedClientLoginController,
     injectedBookingClientController,injectedReviewController
  } from "../../inject/clientInject";
  import { injectedVerifyTokenAndCheckBlacklistMiddleware,injectedTokenExpiryValidationChecking,injectedClientStatusCheckingMiddleware } from "../../inject/serviceInject";
- import { injectedLoadPreviousChatController,injectedFindChatsOfUserController } from "../../inject/chatInject";
+ import { injectedLoadPreviousChatController,injectedFindChatsOfUserController, injectedNotificationController } from "../../inject/chatInject";
  import { checkRoleBaseMiddleware } from "../../../adapters/middlewares/checkRoleBaseMiddleware";
-import { injectedEventController } from "../../inject/vendorInject";
 
 export class clientRoute{
     public clientRoute:Router
@@ -125,6 +124,15 @@ export class clientRoute{
         })
         this.clientRoute.get('/ticketByStatus/:ticketStatus/:paymentStatus/:pageNo/:sortBy', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('client'), injectedClientStatusCheckingMiddleware, (req: Request, res: Response) => {
             injectedTicketClientController.handleFindTicketsByStatus(req, res)
+        })
+        this.clientRoute.patch('/readNotification', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('client'), injectedClientStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedNotificationController.handleReadNotification(req, res)
+        })
+        this.clientRoute.delete('/deleteSingleNotification', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('client'), injectedClientStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedNotificationController.handleDeleteSingleNotification(req, res)
+        })
+        this.clientRoute.delete('/deleteAllNotifications', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('client'), injectedClientStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedNotificationController.handleDeleteAllNotification(req, res)
         })
     }
 }

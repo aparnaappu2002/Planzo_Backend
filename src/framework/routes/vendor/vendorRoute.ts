@@ -2,11 +2,12 @@ import { Request,Response,Router } from "express";
 import { injectedVendorAuthenticationController,
     injectedVendorLoginLogoutController,
     injectedForgotPasswordVendorController,injectedProfileVendorController,injectedWalletVendorController,
-    injectedEventController,injectedTicketVendorController,injectedWorkSampleController,injectedServiceVendorControllerUseCase,injectedBookingVendorController
+    injectedEventController,injectedTicketVendorController,injectedWorkSampleController,injectedServiceVendorControllerUseCase,injectedBookingVendorController,
+    injectedVendorDashboardController,
  } from "../../inject/vendorInject";
 import { injectedVerifyTokenAndCheckBlacklistMiddleware,injectedTokenExpiryValidationChecking,injectedVendorStatusCheckingMiddleware } from "../../inject/serviceInject";
 import { checkRoleBaseMiddleware } from "../../../adapters/middlewares/checkRoleBaseMiddleware";
-import { injectedLoadPreviousChatController,injectedFindChatsOfUserController } from "../../inject/chatInject";
+import { injectedLoadPreviousChatController,injectedFindChatsOfUserController, injectedNotificationController } from "../../inject/chatInject";
 export class VendorRoute{
     public vendorRoute:Router
     constructor(){
@@ -48,6 +49,9 @@ export class VendorRoute{
         this.vendorRoute.put('/updateEvent',injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware,(req:Request,res:Response)=>{
             injectedEventController.handleUpdateEvent(req,res)
         })
+        this.vendorRoute.get('/searchevents',injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware,(req:Request,res:Response)=>{
+            injectedEventController.handleSearchEvents(req,res)
+        })
         this.vendorRoute.get('/wallet/:userId/:pageNo', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
             injectedWalletVendorController.handleShowWalletDetaills(req, res)
         })
@@ -78,6 +82,9 @@ export class VendorRoute{
         this.vendorRoute.patch('/changeStatusService', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
             injectedServiceVendorControllerUseCase.handleChangeStatusUseCase(req, res)
         })
+        this.vendorRoute.get('/searchservice', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedServiceVendorControllerUseCase.handleSearchService(req, res)
+        })
         this.vendorRoute.get('/showBookings/:vendorId/:pageNo', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
             injectedBookingVendorController.handleShowBookingsInVendor(req, res)
         })
@@ -101,6 +108,21 @@ export class VendorRoute{
         })
         this.vendorRoute.get('/transactions', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
             injectedWalletVendorController.handleFindTransactionsByPaymentStatus(req, res)
+        })
+        this.vendorRoute.get('/vendorDashboard', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedVendorDashboardController.handleVendorDashboard(req, res)
+        })
+        this.vendorRoute.post('/pdfDownload', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedVendorDashboardController.handlePdfDownloaderVendor(req, res)
+        })
+        this.vendorRoute.patch('/readNotification', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedNotificationController.handleReadNotification(req, res)
+        })
+        this.vendorRoute.delete('/deleteSingleNotification', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedNotificationController.handleDeleteSingleNotification(req, res)
+        })
+        this.vendorRoute.delete('/deleteAllNotifications', injectedVerifyTokenAndCheckBlacklistMiddleware, injectedTokenExpiryValidationChecking, checkRoleBaseMiddleware('vendor'), injectedVendorStatusCheckingMiddleware, (req: Request, res: Response) => {
+            injectedNotificationController.handleDeleteAllNotification(req, res)
         })
     }
 }
