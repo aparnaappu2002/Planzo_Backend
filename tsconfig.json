@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "eslint.config.mts"]
+}
+=======
 { 
  	"compilerOptions":{
 	"target": "es2016",
@@ -10,3 +26,4 @@
 	"skipLibCheck":true
 	}
 }
+>>>>>>> 200ce3b6afb515e833df82d00e0eb738f6c155a2
