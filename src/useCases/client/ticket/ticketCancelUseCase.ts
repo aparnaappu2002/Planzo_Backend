@@ -28,7 +28,6 @@ export class TicketCancelUseCase implements ITicketCancelUseCase {
 
     async ticketCancel(ticketId: string, refundMethod?: 'wallet' | 'bank'): Promise<TicketAndVendorDTO> {
         const cancelledTicket = await this.ticketDatabase.ticketCancel(ticketId, refundMethod)
-        console.log("CancelledTicket:",cancelledTicket)
         if (!cancelledTicket) throw new Error('No ticket found in this ID for cancellation')
         
         const refundAmountToVendor = cancelledTicket.totalAmount * 0.29

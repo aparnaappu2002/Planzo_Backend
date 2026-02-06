@@ -28,7 +28,6 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
     try {
         const { ticket, totalCount, totalAmount, vendorId } = req.body;
 
-        // Validation
         if (!ticket) {
             res.status(HttpStatus.BAD_REQUEST).json({
                 message: "Ticket data is required"
@@ -50,7 +49,7 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        const hasSelections = Object.values(ticket.ticketVariants).some((quantity: any) => 
+        const hasSelections = Object.values(ticket.ticketVariants).some((quantity: unknown) => 
             typeof quantity === 'number' && quantity > 0
         );
 
@@ -82,11 +81,9 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        // Get selected variants for limit checking
         const selectedVariants = Object.entries(ticket.ticketVariants)
             .filter(([variant, quantity]) => typeof quantity === 'number' && quantity > 0);
 
-        // Check ticket limits before creation
         const limitCheckPromises = selectedVariants.map(([variant, quantity]) => 
             this.checkTicketLimitUseCase.checkTicketLimit(
                 ticket.clientId,
@@ -120,14 +117,12 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        // Create ticket with retry mechanism
         let retryCount = 0;
         const maxRetries = 3;
         let ticketCreationResult;
 
         while (retryCount < maxRetries) {
             try {
-                // Create ticket - this now creates the payment intent internally
                 ticketCreationResult = await this.createTicketUseCase.createTicket(
                     ticket,
                     totalCount,
@@ -135,7 +130,6 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
                     vendorId
                 );
 
-                // If we reach here, ticket was created successfully
                 break;
 
             } catch (error) {
@@ -144,7 +138,6 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
                     throw error;
                 }
                 
-                // Exponential backoff: wait 100ms, then 200ms, then 400ms
                 await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, retryCount - 1)));
                 console.log(`Retrying ticket creation, attempt ${retryCount + 1}`);
             }
@@ -157,7 +150,6 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
 
         const { clientSecret, paymentIntentId, createdTicket } = ticketCreationResult;
 
-        // Calculate summary from the consolidated ticket
         const variantsSummary = createdTicket.ticketVariants.map(variant => ({
             type: variant.variant,
             quantity: variant.count,
@@ -172,8 +164,8 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
 
         res.status(HttpStatus.CREATED).json({ 
             message: "Ticket and payment intent created successfully", 
-            clientSecret,           // For Stripe payment confirmation on frontend
-            paymentIntentId,        // For reference/tracking
+            clientSecret,           
+            paymentIntentId,        
             createdTicket,
             summary: {
                 ticketId: createdTicket.ticketId,
@@ -203,7 +195,6 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
 
         
 
-        // Validate required fields
         if (!ticket) {
             throw new Error('No ticket data provided');
         }
@@ -216,7 +207,6 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
             throw new Error('Vendor ID is required');
         }
 
-        // Validate ticket structure
         if (!ticket.eventId) {
             throw new Error('Ticket is missing required eventId field');
         }
@@ -229,32 +219,15 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
             throw new Error('Ticket is missing required ticketId field');
         }
 
-        console.log('Processing consolidated ticket for confirmation:', {
-            ticketId: ticket.ticketId,
-            eventId: ticket.eventId,
-            variants: ticket.ticketVariants.map((v: any) => ({ 
-                variant: v.variant, 
-                count: v.count, 
-                subtotal: v.subtotal 
-            })),
-            totalAmount: ticket.totalAmount,
-            totalCount: ticket.ticketCount
-        });
+        
 
-        // Call the use case with the single consolidated ticket
         const confirmedTicket = await this.confirmTicketAndPaymentUseCase.confirmTicketAndPayment(
             ticket, 
             paymentIntent, 
             vendorId
         );
 
-        console.log('Successfully confirmed consolidated ticket:', {
-            ticketId: confirmedTicket.ticketId,
-            paymentStatus: confirmedTicket.paymentStatus,
-            ticketStatus: confirmedTicket.ticketStatus,
-            variantCount: confirmedTicket.ticketVariants.length,
-            totalQrCodes: confirmedTicket.ticketVariants.reduce((sum: number, v: any) => sum + v.qrCodes.length, 0)
-        });
+        
 
         res.status(HttpStatus.OK).json({ 
             message: 'Ticket confirmed successfully',
@@ -303,7 +276,6 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
     try {
         const { ticketId, refundMethod } = req.body
         
-        // Validate refundMethod
         if (refundMethod && !['wallet', 'bank'].includes(refundMethod)) {
             res.status(HttpStatus.BAD_REQUEST).json({
                 message: 'Invalid refund method. Must be either "wallet" or "bank"'
@@ -313,7 +285,7 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
         
         const cancelledTicket = await this.ticketCancelUseCase.ticketCancel(
             ticketId, 
-            refundMethod || 'wallet' // Default to wallet if not specified
+            refundMethod || 'wallet' 
         )
         
         res.status(HttpStatus.OK).json({ 
