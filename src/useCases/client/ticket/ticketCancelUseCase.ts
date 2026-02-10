@@ -33,7 +33,6 @@ export class TicketCancelUseCase implements ITicketCancelUseCase {
         const refundAmountToVendor = cancelledTicket.totalAmount * 0.29
         const refundAmountToClient = cancelledTicket.totalAmount - (refundAmountToVendor + cancelledTicket.totalAmount * 0.01)
         
-        // Check if refund method is bank transfer
         if (refundMethod === 'bank') {
             console.log('[TicketCancel] Processing bank transfer payout via Stripe');
             
