@@ -24,7 +24,6 @@ export class CategoryController {
             const category = await this.createCategoryUseCase.createCategory(title, image)
             res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_CREATED, category })
         } catch (error) {
-            //console.log('error while creating category', error)
             res.status(HttpStatus.BAD_REQUEST).json({
                 message: Messages.CATEGORY_CREATE_ERROR,
                 error: error instanceof Error ? error.message : Messages.CATEGORY_CREATE_ERROR
@@ -37,7 +36,6 @@ export class CategoryController {
             const { categories, totalPages } = await this.findCategoryUseCase.findAllCategory(pageNo)
             res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_FETCHED, categories, totalPages })
         } catch (error) {
-            //console.log('error while fetching categories', error)
             res.status(HttpStatus.BAD_REQUEST).json({
                 message: Messages.CATEGORY_FETCH_ERROR,
                 error: error instanceof Error ? error.message : Messages.CATEGORY_FETCH_ERROR
@@ -47,11 +45,9 @@ export class CategoryController {
     async handleUpdateCategory(req: Request, res: Response): Promise<void> {
         try {
             const { categoryId, updates } = req.body
-            //console.log(categoryId)
              await this.updateCategoryUseCase.updateCategory(categoryId, updates)
             res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_UPDATED})
         } catch (error) {
-            //console.log('error while changning titlle and image of category', error)
             res.status(HttpStatus.BAD_REQUEST).json({
                 message: Messages.CATEGORY_UPDATE_ERROR,
                 error: error instanceof Error ? error.message : Messages.CATEGORY_UPDATE_ERROR
@@ -64,7 +60,6 @@ export class CategoryController {
             const changeStatusOfCategory = await this.changeCategoryStatusUseCase.changeStatusCategory(categoryId)
             if (changeStatusOfCategory) res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_STATUS_CHANGED })
         } catch (error) {
-            //console.log('error while changing the status of the category', error)
             res.status(HttpStatus.BAD_REQUEST).json({
                 message: Messages.CATEGORY_STATUS_ERROR,
                 error: error instanceof Error ? error.message : Messages.CATEGORY_STATUS_ERROR
