@@ -4,6 +4,7 @@ import { HttpStatus } from "../../../../domain/enums/httpStatus";
 import { IticketVerificationUseCase } from "../../../../domain/interfaces/useCaseInterfaces/vendor/ticket/IticketVerificationUseCase";
 import { IticketSearchUseCase } from "../../../../domain/interfaces/useCaseInterfaces/vendor/ticket/IticketSearchUseCase";
 import { IticketFilterUseCase } from "../../../../domain/interfaces/useCaseInterfaces/vendor/ticket/IticketFilterUseCase";
+import { handleErrorResponse,logError } from "../../../../framework/services/errorHandler";
 export class TicketVendorController {
     private ticketAndUserDetailsUseCase: IticketAndUserDetailsOfEventUseCase
     private ticketVerificationUseCase:IticketVerificationUseCase
@@ -26,11 +27,8 @@ export class TicketVendorController {
             const { ticketAndEventDetails, totalPages } = await this.ticketAndUserDetailsUseCase.findTicketAndUserDetailsOfEvent(vendorId?.toString(), page)
             res.status(HttpStatus.OK).json({ message: "Ticket and user details", ticketAndEventDetails, totalPages })
         } catch (error) {
-            console.log('error while fetching the ticket and user details of the event', error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'error while fetching the ticket and user details of the event',
-                error: error instanceof Error ? error.message : 'error while fetching the ticket and user details of the event'
-            })
+            logError('Error while fetching ticket and user details of event', error);
+            handleErrorResponse(req, res, error, 'Failed to fetch ticket and user details');
         }
     }
     async handleTicketConfirmation(req: Request, res: Response): Promise<void> {
@@ -41,11 +39,8 @@ export class TicketVendorController {
             const verifiedTicket = await this.ticketVerificationUseCase.verifyTicket(ticketId, eventId, vendorId)
             res.status(HttpStatus.OK).json({ message: "Ticket verified", verifiedTicket })
         } catch (error) {
-            console.log('error while ticket confirming', error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: "error while ticket confirming",
-                error: error instanceof Error ? error.message : 'error while ticket confirming'
-            })
+            logError('Error while verifying ticket', error);
+            handleErrorResponse(req, res, error, 'Failed to verify ticket');
         }
     }
     async handleTicketFilter(req: Request, res: Response): Promise<void> {
@@ -85,11 +80,8 @@ export class TicketVendorController {
                 totalPages 
             });
         } catch (error) {
-            console.log('error while filtering tickets', error);
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'error while filtering tickets',
-                error: error instanceof Error ? error.message : 'error while filtering tickets'
-            });
+            logError('Error while filtering tickets', error);
+            handleErrorResponse(req, res, error, 'Failed to filter tickets');
         }
     }
 
@@ -120,11 +112,8 @@ export class TicketVendorController {
                 totalPages 
             });
         } catch (error) {
-            console.log('error while searching tickets', error);
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'error while searching tickets',
-                error: error instanceof Error ? error.message : 'error while searching tickets'
-            });
+            logError('Error while searching tickets', error);
+            handleErrorResponse(req, res, error, 'Failed to search tickets');
         }
     }
 

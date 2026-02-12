@@ -3,6 +3,7 @@ import { IvendorAuthenticationUseCase } from "../../../../domain/interfaces/useC
 import { IsendOtpVendorInterface } from "../../../../domain/interfaces/useCaseInterfaces/vendor/authentication/IsendOtpVendorUseCase";
 import { HttpStatus } from "../../../../domain/enums/httpStatus";
 import { IresendOtpVendorUseCase } from "../../../../domain/interfaces/useCaseInterfaces/vendor/authentication/IresendOtpVendorUseCase";
+import { handleErrorResponse,logError } from "../../../../framework/services/errorHandler";
 
 export class VendorAuthenticationController{
     private vendorAuthenticationUseCase:IvendorAuthenticationUseCase
@@ -24,12 +25,12 @@ export class VendorAuthenticationController{
             res.status(HttpStatus.OK).json({message:"otp sended ot the email"})
             return
         }catch(error){
-            console.log("error while sending otp",error)
+            logError("Error while sending vendor OTP", error);
             res.status(HttpStatus.BAD_REQUEST).json({
-                message:"Error while sending the otp",
-                error: error instanceof Error ? error.message:"Unknown error",
-                stack:error instanceof Error ? error.stack : undefined
-            })
+                message: "Error while sending the OTP",
+                error: error instanceof Error ? error.message : "Unknown error",
+                stack: error instanceof Error ? error.stack : undefined
+            });
         }
     }
 
@@ -48,12 +49,12 @@ export class VendorAuthenticationController{
             message:"Vendor created",vendor
         })
         }catch(error){
-            console.log("error while verifying otp",error)
+            logError("Error while registering vendor", error);
             res.status(HttpStatus.BAD_REQUEST).json({
-                message:"Error while verifying client",
-                error:error instanceof Error ? error.message:"Unknown error",
-                stack: error instanceof Error ? error.stack :undefined
-            })
+                message: "Error while verifying vendor",
+                error: error instanceof Error ? error.message : "Unknown error",
+                stack: error instanceof Error ? error.stack : undefined
+            });
             return
         }
 
@@ -66,11 +67,8 @@ export class VendorAuthenticationController{
                 message:"Resended the otp"
             })
         }catch(error){
-            console.log('error while resending otp in vendor',error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message:"error while resending otp",
-                error : error instanceof Error ? error.message : "error while resending otp"
-            })
+            logError('Error while resending OTP for vendor', error);
+            handleErrorResponse(req, res, error, "Error while resending OTP");
         }
     }
 }

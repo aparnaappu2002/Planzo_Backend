@@ -2,6 +2,7 @@ import { Request,Response } from "express";
 import { IsendEmailForgetPasswordVendor } from "../../../../domain/interfaces/useCaseInterfaces/vendor/authentication/IsendEmailForgetPasswordVendor";
 import { HttpStatus } from "../../../../domain/enums/httpStatus";
 import { IForgotPasswordVendorUseCase } from "../../../../domain/interfaces/useCaseInterfaces/vendor/authentication/IForgotPasswordVendor";
+import { handleErrorResponse,logError } from "../../../../framework/services/errorHandler";
 
 export class ForgotPasswordVendorController{
     private sendEmailForgetPasswordVendor:IsendEmailForgetPasswordVendor
@@ -20,11 +21,8 @@ export class ForgotPasswordVendorController{
                 message:"Reset email sent successfully"
             })
         }catch(error){
-            console.log("Error while sending reset email:",error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message:"Error while sending reset email",
-                error:error instanceof Error ? error.message:"Error while sending reset email"
-            })
+            logError("Error while sending vendor reset email", error);
+            handleErrorResponse(req, res, error, "Error while sending reset email");
         }
     }
     async handleResetPasswordVendor(req:Request,res:Response):Promise<void>{
@@ -36,11 +34,8 @@ export class ForgotPasswordVendorController{
                 client:updatedClient
             })
         }catch(error){
-            console.log("Error while resetting the password:",error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message:"Error while resetting password",
-                error:error instanceof Error ? error.message: "Error while resetting the password"
-            })
+            logError("Error while resetting vendor password", error);
+            handleErrorResponse(req, res, error, "Error while resetting password");
         }
     }
 }

@@ -4,6 +4,7 @@ import { HttpStatus } from "../../../../domain/enums/httpStatus";
 import { IrejectVendorUseCase } from "../../../../domain/interfaces/useCaseInterfaces/admin/vendorManagement/IrejectVendorUseCase";
 import { VendorStatus } from "../../../../domain/enums/vendorStatus";
 import { Messages } from "../../../../domain/enums/messages";
+import { handleErrorResponse,logError } from "../../../../framework/services/errorHandler";
 export class VendorStatusController {
     private approveVendorUseCase: IapproveVendorUseCase
     private rejectVendorUseCase: IrejectVendorUseCase
@@ -22,11 +23,8 @@ export class VendorStatusController {
             res.status(HttpStatus.OK).json({ message: `Vendor ${newStatus}`, updatedVendor })
 
         } catch (error) {
-            console.log('error while  approving the vendor controller', error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: Messages.VENDOR_APPROVE_ERROR,
-                error: error instanceof Error ? error.message : Messages.VENDOR_APPROVE_ERROR
-            })
+            logError('Error while approving the vendor', error);
+            handleErrorResponse(req, res, error, Messages.VENDOR_APPROVE_ERROR);
         }
     }
     async handleRejectVendor(req: Request, res: Response): Promise<void> {
@@ -35,11 +33,8 @@ export class VendorStatusController {
             await this.rejectVendorUseCase.rejectVendor(vendorId, newStatus, rejectionReason)
             res.status(HttpStatus.OK).json({ message: Messages.VENDOR_REJECTED })
         } catch (error) {
-            console.log('error while rejecting vendor', error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: Messages.VENDOR_REJECT_ERROR,
-                error: error instanceof Error ? error.message : Messages.VENDOR_REJECT_ERROR
-            })
+            logError('Error while rejecting vendor', error);
+            handleErrorResponse(req, res, error, Messages.VENDOR_REJECT_ERROR);
         }
     }
 }

@@ -5,6 +5,7 @@ import { IfindCategoryUseCase } from "../../../../domain/interfaces/useCaseInter
 import { IupdateCategoryUseCase } from "../../../../domain/interfaces/useCaseInterfaces/category/IupdateCategoryUseCase";
 import { IchangeCategoryStatusUseCase } from "../../../../domain/interfaces/useCaseInterfaces/category/IchangeCategoryStatus";
 import { Messages } from "../../../../domain/enums/messages";
+import { handleErrorResponse,logError } from "../../../../framework/services/errorHandler";
 
 export class CategoryController {
     private createCategoryUseCase: IcreateCategoryUseCase
@@ -24,10 +25,9 @@ export class CategoryController {
             const category = await this.createCategoryUseCase.createCategory(title, image)
             res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_CREATED, category })
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: Messages.CATEGORY_CREATE_ERROR,
-                error: error instanceof Error ? error.message : Messages.CATEGORY_CREATE_ERROR
-            })
+            logError('Error while creating category', error);
+            handleErrorResponse(req, res, error, Messages.CATEGORY_CREATE_ERROR);
+
         }
     }
     async handleFindCategory(req: Request, res: Response): Promise<void> {
@@ -36,10 +36,8 @@ export class CategoryController {
             const { categories, totalPages } = await this.findCategoryUseCase.findAllCategory(pageNo)
             res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_FETCHED, categories, totalPages })
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: Messages.CATEGORY_FETCH_ERROR,
-                error: error instanceof Error ? error.message : Messages.CATEGORY_FETCH_ERROR
-            })
+            logError('Error while fetching categories', error);
+            handleErrorResponse(req, res, error, Messages.CATEGORY_FETCH_ERROR);
         }
     }
     async handleUpdateCategory(req: Request, res: Response): Promise<void> {
@@ -48,10 +46,8 @@ export class CategoryController {
              await this.updateCategoryUseCase.updateCategory(categoryId, updates)
             res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_UPDATED})
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: Messages.CATEGORY_UPDATE_ERROR,
-                error: error instanceof Error ? error.message : Messages.CATEGORY_UPDATE_ERROR
-            })
+            logError('Error while updating category', error);
+            handleErrorResponse(req, res, error, Messages.CATEGORY_UPDATE_ERROR);
         }
     }
     async handleChangeCategoryStatus(req: Request, res: Response): Promise<void> {
@@ -60,10 +56,8 @@ export class CategoryController {
             const changeStatusOfCategory = await this.changeCategoryStatusUseCase.changeStatusCategory(categoryId)
             if (changeStatusOfCategory) res.status(HttpStatus.OK).json({ message: Messages.CATEGORY_STATUS_CHANGED })
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: Messages.CATEGORY_STATUS_ERROR,
-                error: error instanceof Error ? error.message : Messages.CATEGORY_STATUS_ERROR
-            })
+            logError('Error while changing category status', error);
+            handleErrorResponse(req, res, error, Messages.CATEGORY_STATUS_ERROR);
         }
     }
 }

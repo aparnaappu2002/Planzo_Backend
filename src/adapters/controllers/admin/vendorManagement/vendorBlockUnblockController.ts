@@ -5,6 +5,7 @@ import { IredisService } from "../../../../domain/interfaces/serviceInterface/Ir
 import { IvendorUnblockUseCase } from "../../../../domain/interfaces/useCaseInterfaces/admin/vendorManagement/IvendorUnblockUseCase";
 import { ISearchVendorsUseCase } from "../../../../domain/interfaces/useCaseInterfaces/admin/vendorManagement/IsearchVendorUseCase";
 import { Messages } from "../../../../domain/enums/messages";
+import { handleErrorResponse,logError } from "../../../../framework/services/errorHandler";
 
 export class VendorBlockUnblockController{
     private vendorBlockUseCase:IvendorBlockUseCase
@@ -27,11 +28,8 @@ export class VendorBlockUnblockController{
                 message:Messages.VENDOR_BLOCKED
             })
         }catch(error){
-            console.log('error while blocking Vendor', error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: Messages.VENDOR_BLOCK_ERROR,
-                error: error instanceof Error ? error.message : Messages.VENDOR_BLOCK_ERROR
-            })
+            logError('Error while blocking vendor', error);
+            handleErrorResponse(req, res, error, Messages.VENDOR_BLOCK_ERROR);
         }
     }
     async handleVendorUnblock(req:Request,res:Response):Promise<void>{
@@ -41,11 +39,8 @@ export class VendorBlockUnblockController{
              await this.redisService.set(`user:vendor:${vendorId}`,15*60,JSON.stringify({status:'active',vendorStatus:'approved'}))
             if(unblockUser) res.status(HttpStatus.OK).json({message:Messages.VENDOR_UNBLOCKED})
         }catch(error){
-            console.log(Messages.VENDOR_UNBLOCK_ERROR, error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: "error while unblocking vendor",
-                error: error instanceof Error ? error.message : Messages.VENDOR_UNBLOCK_ERROR
-            })
+            logError('Error while unblocking vendor', error);
+            handleErrorResponse(req, res, error, Messages.VENDOR_UNBLOCK_ERROR);
         }
     }
     async searchVendor(req: Request, res: Response): Promise<void> {
@@ -66,11 +61,8 @@ export class VendorBlockUnblockController{
             vendors
         });
     } catch (error) {
-        console.log("Error while searching vendors", error);
-        res.status(HttpStatus.BAD_REQUEST).json({
-            message: Messages.VENDOR_SEARCH_ERROR,
-            error: error instanceof Error ? error.message : Messages.VENDOR_SEARCH_ERROR
-        });
+        logError("Error while searching vendors", error);
+        handleErrorResponse(req, res, error, Messages.VENDOR_SEARCH_ERROR);
     }
 }
 }

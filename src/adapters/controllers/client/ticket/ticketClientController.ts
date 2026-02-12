@@ -6,6 +6,7 @@ import { IshowTicketAndEventClientUseCaseInterface } from "../../../../domain/in
 import { ITicketCancelUseCase } from "../../../../domain/interfaces/useCaseInterfaces/client/ticket/IticketCancelUseCase";
 import { IcheckTicketLimitUseCaseInterface } from "../../../../domain/interfaces/useCaseInterfaces/client/ticket/IcheckTicketLimitUseCaseInterface";
 import { IfindTicketsByStatus } from "../../../../domain/interfaces/useCaseInterfaces/client/ticket/IfindTicketBasedOnStatusUseCase";
+import { handleErrorResponse,logInfo,logError } from "../../../../framework/services/errorHandler";
 export class TicketClientController {
     private createTicketUseCase: IcreateTicketUseCase
     private confirmTicketAndPaymentUseCase: IconfirmTicketAndPaymentUseCase
@@ -146,9 +147,15 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
         if (!ticketCreationResult) {
             throw new Error('Failed to create ticket after multiple attempts');
         }
-        console.log("TicketCreationResult:",ticketCreationResult)
 
         const { clientSecret, paymentIntentId, createdTicket } = ticketCreationResult;
+        logInfo('Ticket created successfully', {
+                ticketId: createdTicket.ticketId,
+                paymentIntentId,
+                totalAmount: createdTicket.totalAmount,
+                totalTickets: createdTicket.ticketCount
+            });
+
 
         const variantsSummary = createdTicket.ticketVariants.map(variant => ({
             type: variant.variant,
@@ -180,7 +187,7 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
         });
 
     } catch (error) {
-        console.error('Error in handleCreateUseCase:', error);
+        logError('Error in handleCreateUseCase:', error);
         res.status(HttpStatus.BAD_REQUEST).json({
             message: "Error while creating ticket",
             error: error instanceof Error ? error.message : "Unknown error occurred while creating ticket",
@@ -228,6 +235,12 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
         );
 
         
+        logInfo('Ticket confirmed successfully', {
+                ticketId: confirmedTicket.ticketId,
+                paymentStatus: confirmedTicket.paymentStatus,
+                ticketStatus: confirmedTicket.ticketStatus,
+                totalAmount: confirmedTicket.totalAmount
+            });
 
         res.status(HttpStatus.OK).json({ 
             message: 'Ticket confirmed successfully',
@@ -250,7 +263,7 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
         console.log('=== CONTROLLER: CONFIRMATION COMPLETED ===');
 
     } catch (error) {
-        console.error('Error while confirming ticket and payment:', error);
+        logError('Error while confirming ticket and payment:', error);
         res.status(HttpStatus.BAD_REQUEST).json({
             message: 'Error while confirming ticket and payment',
             error: error instanceof Error ? error.message : 'Unknown error occurred during ticket confirmation'
@@ -263,13 +276,18 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
             
             const page = parseInt(pageNo, 10) || 1
             const { ticketAndEventDetails, totalPages } = await this.showTickeAndEventUseCase.showTicketAndEvent(clientId, page)
+            logInfo('Ticket and event details fetched successfully', { 
+                clientId, 
+                page, 
+                totalPages,
+                ticketsCount: ticketAndEventDetails.length 
+            });
+
             res.status(HttpStatus.OK).json({ message: "Ticket details fetched", ticketAndEventDetails, totalPages })
         } catch (error) {
-            console.log('error while fetching ticketDetails with event details', error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'error while fetching ticketDetails with event details',
-                error: error instanceof Error ? error.message : 'error while fetching ticketDetails with event details'
-            })
+            logError('Error while fetching ticket details with event details', error);
+            handleErrorResponse(req, res, error, 'Error while fetching ticket details with event details');
+
         }
     }
     async handleTicketCancel(req: Request, res: Response): Promise<void> {
@@ -288,17 +306,16 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
             refundMethod || 'wallet' 
         )
         
+        
         res.status(HttpStatus.OK).json({ 
             message: 'Ticket cancelled successfully', 
             cancelledTicket,
             refundMethod: refundMethod || 'wallet'
         })
     } catch (error) {
-        console.log('error while cancelling the ticket', error)
-        res.status(HttpStatus.BAD_REQUEST).json({
-            message: 'Error while cancelling the ticket',
-            error: error instanceof Error ? error.message : 'Error while cancelling the ticket'
-        })
+        logError('Error while cancelling the ticket', error);
+            handleErrorResponse(req, res, error, 'Error while cancelling the ticket');
+
     }
 }
     async handleFindTicketsByStatus(req: Request, res: Response): Promise<void> {
@@ -315,11 +332,9 @@ async handleCreateUseCase(req: Request, res: Response): Promise<void> {
         res.status(HttpStatus.OK).json({ message: 'Tickets retrieved successfully', data: result });
         
     } catch (error) {
-        console.log('Error while finding tickets by status', error);
-        res.status(HttpStatus.BAD_REQUEST).json({
-            message: 'Error while finding tickets by status',
-            error: error instanceof Error ? error.message : 'Error while finding tickets by status'
-        });
+        logError('Error while finding tickets by status', error);
+        handleErrorResponse(req, res, error, 'Error while finding tickets by status');
+
     }
 }
 

@@ -5,6 +5,7 @@ import { IredisService } from "../../../../domain/interfaces/serviceInterface/Ir
 import { setCookieVendor } from "../../../../framework/services/tokenCookieSettingVendor";
 import { HttpStatus } from "../../../../domain/enums/httpStatus";
 import { IvendorLogoutUseCase } from "../../../../domain/interfaces/useCaseInterfaces/vendor/authentication/IvendorLogoutUseCase";
+import { handleErrorResponse,logError } from "../../../../framework/services/errorHandler";
 
 export class LoginLogoutVendorController {
   private vendorLoginUseCase: IloginVendorUseCase;
@@ -74,11 +75,8 @@ export class LoginLogoutVendorController {
         });
       return;
     } catch (error) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        message: "error while login vendor",
-        error:
-          error instanceof Error ? error.message : "error while login vendor",
-      });
+      logError("Error while vendor login", error);
+      handleErrorResponse(req, res, error, "Error while login vendor");
       return;
     }
   }
@@ -98,11 +96,8 @@ export class LoginLogoutVendorController {
                 res.status(HttpStatus.OK).json({ message: "Logout successful" });
 
         } catch (error) {
-            console.log('error while handling logout client', error)
-            res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'error while handling logout client',
-                error: error instanceof Error ? error.message : 'error while handling logout client'
-            })
+            logError('Error while handling vendor logout', error);
+            handleErrorResponse(req, res, error, 'Error while handling logout vendor');
         }
     }
 
