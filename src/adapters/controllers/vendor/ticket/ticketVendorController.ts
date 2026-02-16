@@ -35,6 +35,25 @@ export class TicketVendorController {
         try {
             const { ticketId, eventId } = req.body
             const vendorId = (req as any).user.userId
+            if (!ticketId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Ticket ID is required'
+                });
+                return;
+            }
+            if (!eventId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Event ID is required'
+                });
+                return;
+            }
+            if (!vendorId) {
+                res.status(HttpStatus.UNAUTHORIZED).json({
+                    message: 'Vendor authentication required'
+                });
+                return;
+            }
+
             console.log('This is event id in controller', eventId)
             const verifiedTicket = await this.ticketVerificationUseCase.verifyTicket(ticketId, eventId, vendorId)
             res.status(HttpStatus.OK).json({ message: "Ticket verified", verifiedTicket })

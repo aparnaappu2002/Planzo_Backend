@@ -44,6 +44,12 @@ export class ServiceVendorController {
     async handleCreateService(req: Request, res: Response): Promise<void> {
         try {
             const { service } = req.body
+            if (!service) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Service data is required'
+                });
+                return;
+            }
             const createdService = await this.createServiceUseCase.createService(service)
             if (!createdService) {
                 res.status(HttpStatus.BAD_REQUEST).json({ message: 'error while creating service' })
@@ -58,6 +64,18 @@ export class ServiceVendorController {
     async handleEditService(req: Request, res: Response): Promise<void> {
         try {
             const { service, serviceId }: Params = req.body
+            if (!serviceId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Service ID is required'
+                });
+                return;
+            }
+            if (!service) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Service data is required'
+                });
+                return;
+            }
             const updatedService = await this.editServiceUseCase.editService(service, serviceId)
             res.status(HttpStatus.OK).json({ message: "Service Updated", updatedService })
         } catch (error) {
@@ -68,6 +86,12 @@ export class ServiceVendorController {
     async handleChangeStatusUseCase(req: Request, res: Response): Promise<void> {
         try {
             const { serviceId } = req.body
+            if (!serviceId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Service ID is required'
+                });
+                return;
+            }
             const changedService = await this.changeStatusServiceUseCase.changeStatus(serviceId)
             if (!changedService) {
                 res.status(HttpStatus.BAD_REQUEST).json({ message: "error while changing the status of the user" })
@@ -98,7 +122,12 @@ export class ServiceVendorController {
             const searchTerm = req.query.searchTerm as string;
             const pageNo = req.query.pageNo as string;
             const page = parseInt(pageNo, 10) || 1;
-            
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
             if (!searchTerm || !searchTerm.trim()) {
                 res.status(HttpStatus.BAD_REQUEST).json({ 
                     message: 'Search term is required' 

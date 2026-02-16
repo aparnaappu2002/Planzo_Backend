@@ -21,16 +21,23 @@ export class AdminLoginController {
     this.redisService = redisService;
   }
 
+  private isValidEmail(email: string): boolean {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+
   async handleAdminLogin(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
       //console.log(req.body);
-      if (!email) {
+      if (!email || !this.isValidEmail(email)) {
         res.status(HttpStatus.BAD_REQUEST).json({
           message: Messages.INVALID_EMAIL,
         });
         return;
-      } else if (!password) {
+      } 
+      if (!password || password.trim().length<6) {
         res.status(HttpStatus.BAD_REQUEST).json({
           message: Messages.INVALID_PASSWORD,
         });

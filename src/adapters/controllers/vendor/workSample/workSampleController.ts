@@ -13,6 +13,12 @@ export class WorkSampleController {
     async handleAddWorkSample(req: Request, res: Response): Promise<void> {
         try {
             const { workSample } = req.body
+            if (!workSample) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Work sample data is required'
+                });
+                return;
+            }
             const newWorkSample = await this.addWorkSamplesUseCase.createWorkSample(workSample)
             res.status(HttpStatus.CREATED).json({ message: "Work Sample created", newWorkSample })
         } catch (error) {

@@ -19,9 +19,27 @@ export class ProfileClientController {
         this.showProfileClientUseCase=showProfileClientUseCase
         this.updateProfileClientUseCase=updateProfileClientUseCase
     }
-    async handeChangePasswordClient(req: Request, res: Response): Promise<void> {
+    async handleChangePasswordClient(req: Request, res: Response): Promise<void> {
         try {
             const { userId, oldPassword, newPassword } = req.body
+            if (!userId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'User ID is required'
+                });
+                return;
+            }
+            if (!oldPassword) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Old password is required'
+                });
+                return;
+            }
+            if (!newPassword) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'New password is required'
+                });
+                return;
+            }
             logInfo(`Password change attempt for user: ${userId}`);
             const changePasswordClient = await this.changePasswordCientUseCase.changePasswordClient(userId, oldPassword, newPassword)
             logInfo(`Password changed successfully for user: ${userId}`);

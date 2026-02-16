@@ -21,6 +21,18 @@ export class EventController {
         try {
             const { vendorId } = req.params
             const { event } = req.body
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
+            if (!event) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Event data is required'
+                });
+                return;
+            }
             const createdEvent = await this.eventCreateUseCase.createEvent(event, vendorId)
             res.status(HttpStatus.CREATED).json({ message: "Event created", createdEvent })
         } catch (error) {
@@ -31,6 +43,12 @@ export class EventController {
     async handleFindAllEventsVendor(req: Request, res: Response): Promise<void> {
         try {
             const vendorId = req.params.vendorId
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
             const pageNo = parseInt(req.params.pageNo, 10) || 1
             const { events, totalPages } = await this.findAllEventsVendorUseCase.findAllEvents(vendorId, pageNo)
             res.status(HttpStatus.OK).json({ message: "Events fetched", events, totalPages })
@@ -43,6 +61,12 @@ export class EventController {
     async handleUpdateEvent(req: Request, res: Response): Promise<void> {
         try {
             const { eventId, update } = req.body
+            if (!eventId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Event ID is required'
+                });
+                return;
+            }
             const updatedEvent = await this.updateEventUseCase.updateEvent(eventId, update)
             res.status(HttpStatus.OK).json({ message: "Event Updated", updatedEvent })
         } catch (error) {
@@ -55,6 +79,13 @@ export class EventController {
             const vendorId =  req.query.vendorId as string; 
             const { searchQuery } = req.query;
             const pageNo = parseInt(req.query.pageNo as string) || 1;
+
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
     
             if (!searchQuery || typeof searchQuery !== 'string') {
                 res.status(HttpStatus.BAD_REQUEST).json({

@@ -27,6 +27,33 @@ export class LoginLogoutVendorController {
   async handleLoginVendor(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
+      if (!email) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Email is required'
+                });
+                return;
+            }
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email.trim())) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Invalid email format'
+                });
+                return;
+            }
+        if (!password) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Password is required'
+                });
+                return;
+            }
+
+            if (password.length < 6) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Password must be at least 6 characters'
+                });
+                return;
+            }
+    
       const vendor = await this.vendorLoginUseCase.loginVendor(email, password);
       const modifiedVendor = {
         _id: vendor?._id,

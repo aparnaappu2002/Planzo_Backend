@@ -26,6 +26,12 @@ export class UserManagementController{
     async handleClientBlock(req:Request,res:Response):Promise<void>{
         try{
             const {clientId}=req.body
+            if (!clientId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Client ID is required'
+                });
+                return;
+            }
             await this.clientBlockUseCase.blockClient(clientId)
             await this.redisService.set(`user:client:${clientId}`,15*60,JSON.stringify('block'))
             res.status(HttpStatus.OK).json({message:Messages.CLIENT_BLOCKED})
@@ -37,6 +43,12 @@ export class UserManagementController{
     async handleClientUnblock(req:Request,res:Response):Promise<void>{
         try{
             const {clientId}=req.body
+            if (!clientId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Client ID is required'
+                });
+                return;
+            }
             await this.clientUnblockUseCase.unblockClient(clientId)
             await this.redisService.set(`user:client:${clientId}`,15*60,JSON.stringify('active'))
             res.status(HttpStatus.OK).json({message:Messages.CLIENT_UNBLOCKED})

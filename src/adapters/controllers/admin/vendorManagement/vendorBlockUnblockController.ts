@@ -22,8 +22,15 @@ export class VendorBlockUnblockController{
     async handleVendorBlock(req:Request,res:Response):Promise<void>{
         try{
             const {vendorId} = req.body
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
+
             const blockVendor = await this.vendorBlockUseCase.blockVendor(vendorId)
-             await this.redisService.set(`user:vendor:${vendorId}`,15 * 60,JSON.stringify({status:'block',vendorStatus:'approved'}))
+            await this.redisService.set(`user:vendor:${vendorId}`,15 * 60,JSON.stringify({status:'block',vendorStatus:'approved'}))
             if(blockVendor) res.status(HttpStatus.OK).json({
                 message:Messages.VENDOR_BLOCKED
             })
@@ -35,6 +42,12 @@ export class VendorBlockUnblockController{
     async handleVendorUnblock(req:Request,res:Response):Promise<void>{
         try{
             const {vendorId}=req.body
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
             const unblockUser = await this.vendorUnblockUseCase.vendorUnblock(vendorId)
              await this.redisService.set(`user:vendor:${vendorId}`,15*60,JSON.stringify({status:'active',vendorStatus:'approved'}))
             if(unblockUser) res.status(HttpStatus.OK).json({message:Messages.VENDOR_UNBLOCKED})
@@ -47,7 +60,7 @@ export class VendorBlockUnblockController{
     try {
         const search = req.query.search as string;
 
-        if (!search) {
+        if (!search || search.trim().length === 0) {
             res.status(HttpStatus.BAD_REQUEST).json({
                 message: Messages.SEARCH_QUERY_REQUIRED
             });

@@ -16,6 +16,20 @@ export class ForgotPasswordVendorController{
     async handleSendEmailForgetPasswordVendor(req:Request,res:Response):Promise<void>{
         try{
             const {email}=req.body
+            if (!email) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Email is required'
+                });
+                return;
+            }
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email.trim())) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Invalid email format'
+                });
+                return;
+            }
+
             await this.sendEmailForgetPasswordVendor.sendEmailForgetPasswordVendor(email)
             res.status(HttpStatus.OK).json({
                 message:"Reset email sent successfully"
@@ -28,6 +42,33 @@ export class ForgotPasswordVendorController{
     async handleResetPasswordVendor(req:Request,res:Response):Promise<void>{
         try{
             const {email,newPassword,token}=req.body
+            if (!email) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Email is required'
+                });
+                return;
+            }
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email.trim())) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Invalid email format'
+                });
+                return;
+            }
+            if (!newPassword) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'New password is required'
+                });
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Password must be at least 6 characters'
+                });
+                return;
+            }
+            
             const updatedClient=await this.resetPasswordVendorUseCase.resetPasswordVendor(email,newPassword,token)
             res.status(HttpStatus.OK).json({
                 message:"Password reset successfully",

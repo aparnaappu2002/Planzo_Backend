@@ -14,6 +14,12 @@ export class TicketSearchUseCase implements IticketSearchUseCase {
         searchTerm: string,
         pageNo: number
     ): Promise<{ ticketAndEventDetails: TicketAndUserDTO[] | [], totalPages: number }> {
+        if (!vendorId || vendorId.trim().length === 0) {
+            throw new Error('Vendor ID is required');
+        }
+        if (!searchTerm || searchTerm.trim().length === 0) {
+            throw new Error('Search term is required');
+        }
         return await this.ticketDatabase.searchTicketsByEventTitle(vendorId, searchTerm, pageNo);
     }
 }

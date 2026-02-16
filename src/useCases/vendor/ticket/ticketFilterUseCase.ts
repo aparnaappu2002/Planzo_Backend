@@ -15,6 +15,10 @@ export class TicketFilterUseCase implements IticketFilterUseCase {
         paymentStatus?: 'pending' | 'successful' | 'failed',
         ticketStatus?: 'used' | 'refunded' | 'unused'
     ): Promise<{ ticketAndEventDetails: TicketAndUserDTO[] | [], totalPages: number }> {
+        
+        if (!vendorId || vendorId.trim().length === 0) {
+            throw new Error('Vendor ID is required');
+        }
         return await this.ticketDatabase.filterTickets(vendorId, pageNo, paymentStatus, ticketStatus);
     }
 }

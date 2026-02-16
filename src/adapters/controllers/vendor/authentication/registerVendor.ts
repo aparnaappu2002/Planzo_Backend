@@ -21,6 +21,19 @@ export class VendorAuthenticationController{
     async sendOtp(req:Request,res:Response){
         try{
             const vendor=req.body
+            if (!vendor) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor data is required'
+                });
+                return;
+            }
+            if (!vendor.email) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Email is required'
+                });
+                return;
+            }
+
             await this.vendorSendOtp.execute(vendor.email)
             res.status(HttpStatus.OK).json({message:"otp sended ot the email"})
             return
@@ -37,7 +50,19 @@ export class VendorAuthenticationController{
     async registerVendor(req:Request,res:Response){
         try{
             const {formdata,enteredOtp}=req.body
-            console.log(req.body)
+            if (!enteredOtp) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'OTP is required'
+                });
+                return;
+            }
+            if (!formdata.email) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Email is required'
+                });
+                return;
+            }
+
         const otpverification = await this.vendorSendOtp.verifyOtp(formdata.email,enteredOtp)
         if(!otpverification){
             res.status(HttpStatus.BAD_REQUEST).json({
@@ -62,6 +87,14 @@ export class VendorAuthenticationController{
     async handleResendOtp(req:Request,res:Response):Promise<void>{
         try{
             const {email}=req.body
+            if (!email) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Email is required'
+                });
+                return;
+            }
+            
+
             await this.resendOtpVendoUseCase.resendOtp(email)
             res.status(HttpStatus.OK).json({
                 message:"Resended the otp"

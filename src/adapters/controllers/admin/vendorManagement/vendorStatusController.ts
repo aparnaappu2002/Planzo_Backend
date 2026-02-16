@@ -15,6 +15,19 @@ export class VendorStatusController {
     async handleApproveVendor(req: Request, res: Response): Promise<void> {
         try {
             const { vendorId, newStatus }: { vendorId: string, newStatus: VendorStatus } = req.body
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
+            if (!newStatus) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Status is required'
+                });
+                return;
+            }
+            
             const updatedVendor = await this.approveVendorUseCase.approveVendor(vendorId, newStatus)
             if (!updatedVendor) {
                 res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.VENDOR_APPROVE_ERROR })
@@ -30,6 +43,20 @@ export class VendorStatusController {
     async handleRejectVendor(req: Request, res: Response): Promise<void> {
         try {
             const { vendorId, newStatus, rejectionReason } = req.body
+
+            if (!vendorId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Vendor ID is required'
+                });
+                return;
+            }
+            if (!newStatus) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    message: 'Status is required'
+                });
+                return;
+            }
+
             await this.rejectVendorUseCase.rejectVendor(vendorId, newStatus, rejectionReason)
             res.status(HttpStatus.OK).json({ message: Messages.VENDOR_REJECTED })
         } catch (error) {
