@@ -19,7 +19,7 @@ export class ChatRepository implements IchatRepository {
                 { senderId: userId },
                 { receiverId: userId }
             ]
-        }).sort({ createdAt: -1 })
+        }).sort({ lastMessageAt: -1 })
             .skip(skip)
             .limit(limit)
             .populate('senderId', 'name profileImage') 
